@@ -1,55 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AR Invitation</title>
+  <meta charset="UTF-8">
+  <title>AR Wedding Invitation</title>
 
-  <!-- MindAR + A-Frame -->
+  <!-- A-Frame + MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
   </style>
 </head>
-
 <body>
-  <a-scene
-    mindar-image="imageTargetSrc: targets.mind;"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: true"
-    embedded
-  >
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-scene
+  mindar-image="imageTargetSrc: targets.mind;"
+  embedded
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: true"
+>
 
-    <!-- AR Content -->
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-text
-        value="You're Invited 💍"
-        color="#ffffff"
-        position="0 0.3 0"
-        align="center"
-        width="2"
-      ></a-text>
+  <!-- Camera -->
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-text
-        value="Anil ❤️ Partner"
-        color="#ffd700"
-        position="0 0 0"
-        align="center"
-        width="3"
-      ></a-text>
+  <!-- AR Content on Marker -->
+  <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-text
-        value="Wedding | Date | Venue"
-        color="#ffffff"
-        position="0 -0.3 0"
-        align="center"
-        width="2"
-      ></a-text>
-    </a-entity>
+    <!-- 3D Model -->
+    <a-gltf-model src="dog.glb" scale="0.5 0.5 0.5" position="0 0 0" rotation="0 0 0"></a-gltf-model>
 
-  </a-scene>
+    <!-- Optional Floating Text -->
+    <a-text value="Anil ❤️ Partner" color="#ffd700" position="0 0.8 0" align="center" width="3"></a-text>
+    <a-text value="Engagement / Wedding" color="#ffffff" position="0 0.6 0" align="center" width="3"></a-text>
+    <a-text value="Date & Venue" color="#ffffff" position="0 0.4 0" align="center" width="3"></a-text>
+
+  </a-entity>
+
+  <!-- Optional Lighting -->
+  <a-entity light="type: directional; intensity: 1" position="0 2 2"></a-entity>
+  <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+
+</a-scene>
+
 </body>
 </html>
