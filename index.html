@@ -38,26 +38,27 @@
   <!-- Fullscreen Camera -->
   <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
 
-  <!-- Dog 3D Model on Marker -->
+  <!-- 3D Dog Model on Marker -->
   <a-entity mindar-image-target="targetIndex: 0">
 
+    <!-- Replace "dog.glb" with exact filename / HTTPS link -->
     <a-gltf-model 
       src="dog.glb" 
       scale="0.5 0.5 0.5" 
       position="0 0 0" 
       rotation="0 0 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
-    ></a-gltf-model>
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+    </a-gltf-model>
 
   </a-entity>
 
-  <!-- Lighting -->
+  <!-- Lighting for better 3D visibility -->
   <a-entity light="type: directional; intensity: 1" position="0 2 2"></a-entity>
   <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
 </a-scene>
 
-<!-- Ensure scene resizes on window change -->
+<!-- Handle resizing for portrait/landscape -->
 <script>
   const scene = document.querySelector('a-scene');
   function resizeScene() {
