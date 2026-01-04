@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>AR Dog Invitation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
-    <title>AR Dog Invitation</title>
 </head>
-<body style='margin : 0px; overflow: hidden;'>
+<body style='margin: 0px; overflow: hidden; font-family: Monospace;'>
     <script>
-        // 1. Setup Renderer
-        var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Init Renderer
+        //////////////////////////////////////////////////////////////////////////////////
+        var renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true
+        });
+        renderer.setClearColor(new THREE.Color('lightgrey'), 0);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.domElement.style.position = 'absolute';
@@ -22,15 +29,28 @@
         var camera = new THREE.Camera();
         scene.add(camera);
 
-        // 2. Add Lighting (Essential for Dog model to be visible)
-        var ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-        scene.add(ambientLight);
+        // Add Light so the Dog is visible
+        var light = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(light);
 
-        // 3. Setup AR Source (Webcam)
-        var arToolkitSource = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
-        arToolkitSource.init(function onReady() { onResize(); });
-        window.addEventListener('resize', function () { onResize(); });
-        
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Handle arToolkitSource (The Camera)
+        ////////////////////////////////////////////////////////////////////////////////
+        var arToolkitSource = new THREEx.ArToolkitSource({
+            sourceType: 'webcam'
+        });
+
+        arToolkitSource.init(function onReady() {
+            onResize();
+        }, function onError(err) {
+            console.error("Camera error:", err);
+            alert("Please allow camera access and use HTTPS.");
+        });
+
+        window.addEventListener('resize', function() {
+            onResize();
+        });
+
         function onResize() {
             arToolkitSource.onResizeElement();
             arToolkitSource.copyElementSizeTo(renderer.domElement);
@@ -39,49 +59,59 @@
             }
         }
 
-        // 4. Setup AR Context (Marker Detection)
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Initialize arToolkitContext
+        ////////////////////////////////////////////////////////////////////////////////
         var arToolkitContext = new THREEx.ArToolkitContext({
             cameraParametersUrl: 'https://raw.githack.com/AR-js-org/AR.js/master/data/data/camera_para.dat',
-            detectionMode: 'mono'
+            detectionMode: 'mono',
         });
+
         arToolkitContext.init(function onCompleted() {
             camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
         });
 
-        // 5. Create Marker Anchor
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Create Marker Controls
+        ////////////////////////////////////////////////////////////////////////////////
         var markerRoot = new THREE.Group();
         scene.add(markerRoot);
+        
         var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
             type: 'pattern',
-            patternUrl: 'pattern-marker.patt' // Must be in the same folder on GitHub
+            patternUrl: 'pattern-marker.patt' // Ensure this file is on GitHub root
         });
 
-        // 6. Load your Dog GLB
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Add the GLB Object
+        //////////////////////////////////////////////////////////////////////////////////
         var loader = new THREE.GLTFLoader();
-        loader.load('dog.glb', function (gltf) {
-            var dogModel = gltf.scene;
-            
-            // Auto-scale to fit the marker
-            var bbox = new THREE.Box3().setFromObject(dogModel);
+        loader.load('dog.glb', function(gltf) {
+            var model = gltf.scene;
+
+            // Auto-scale logic to ensure the dog fits on the card
+            var bbox = new THREE.Box3().setFromObject(model);
             var size = bbox.getSize(new THREE.Vector3());
             var maxAxis = Math.max(size.x, size.y, size.z);
-            dogModel.scale.multiplyScalar(1.0 / maxAxis);
-            
-            markerRoot.add(dogModel);
-            console.log("Success: Dog loaded!");
-        }, undefined, function (error) {
-            console.error("Error loading GLB:", error);
+            model.scale.multiplyScalar(1.0 / maxAxis);
+
+            markerRoot.add(model);
+            console.log("Model loaded successfully");
+        }, undefined, function(e) {
+            console.error("GLB Error:", e);
         });
 
-        // 7. Animation Loop
-        function animate() {
-            requestAnimationFrame(animate);
-            if (arToolkitSource.ready) {
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Render Loop
+        //////////////////////////////////////////////////////////////////////////////////
+        function render() {
+            if (arToolkitSource.ready !== false) {
                 arToolkitContext.update(arToolkitSource.domElement);
             }
             renderer.render(scene, camera);
+            requestAnimationFrame(render);
         }
-        animate();
+        render();
     </script>
 </body>
 </html>
