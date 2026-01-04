@@ -1,41 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
     <title>AR Dog Invitation</title>
 </head>
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<body style='margin : 0px; overflow: hidden;'>
     <script>
         // 1. Setup Renderer
         var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.domElement.style.position = 'absolute';
         renderer.domElement.style.top = '0px';
         renderer.domElement.style.left = '0px';
         document.body.appendChild(renderer.domElement);
 
-        var onRenderFcts = [];
         var scene = new THREE.Scene();
-
-        // 2. Setup Camera
         var camera = new THREE.Camera();
         scene.add(camera);
 
-        // 3. Lighting (Crucial for GLB models)
-        var light = new THREE.AmbientLight(0xffffff, 0.8); 
-        scene.add(light);
-        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(0, 1, 1);
-        scene.add(directionalLight);
+        // 2. Add Lighting (Essential for Dog model to be visible)
+        var ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(ambientLight);
 
-        // 4. AR Toolkit Source (Webcam)
+        // 3. Setup AR Source (Webcam)
         var arToolkitSource = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
         arToolkitSource.init(function onReady() { onResize(); });
         window.addEventListener('resize', function () { onResize(); });
+        
         function onResize() {
             arToolkitSource.onResizeElement();
             arToolkitSource.copyElementSizeTo(renderer.domElement);
@@ -44,7 +39,7 @@
             }
         }
 
-        // 5. AR Toolkit Context
+        // 4. Setup AR Context (Marker Detection)
         var arToolkitContext = new THREEx.ArToolkitContext({
             cameraParametersUrl: 'https://raw.githack.com/AR-js-org/AR.js/master/data/data/camera_para.dat',
             detectionMode: 'mono'
@@ -52,50 +47,41 @@
         arToolkitContext.init(function onCompleted() {
             camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
         });
-        onRenderFcts.push(function () {
-            if (arToolkitSource.ready === false) return;
-            arToolkitContext.update(arToolkitSource.domElement);
-        });
 
-        // 6. Marker Setup (Using your 'pattern-marker.patt')
+        // 5. Create Marker Anchor
         var markerRoot = new THREE.Group();
         scene.add(markerRoot);
         var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
             type: 'pattern',
-            patternUrl: 'pattern-marker.patt' // Your file here
+            patternUrl: 'pattern-marker.patt' // Must be in the same folder on GitHub
         });
 
-        // 7. Load your Dog GLB
+        // 6. Load your Dog GLB
         var loader = new THREE.GLTFLoader();
         loader.load('dog.glb', function (gltf) {
-            var model = gltf.scene;
+            var dogModel = gltf.scene;
             
-            // Auto-center and Scale logic from your concept
-            var bbox = new THREE.Box3().setFromObject(model);
+            // Auto-scale to fit the marker
+            var bbox = new THREE.Box3().setFromObject(dogModel);
             var size = bbox.getSize(new THREE.Vector3());
             var maxAxis = Math.max(size.x, size.y, size.z);
-            model.scale.multiplyScalar(1.0 / maxAxis); // Adjust this number to make dog bigger/smaller
+            dogModel.scale.multiplyScalar(1.0 / maxAxis);
             
-            markerRoot.add(model);
-        }, undefined, function (e) {
-            console.error("GLB Load Error: ", e);
+            markerRoot.add(dogModel);
+            console.log("Success: Dog loaded!");
+        }, undefined, function (error) {
+            console.error("Error loading GLB:", error);
         });
 
-        // 8. Render Loop
-        onRenderFcts.push(function () {
-            renderer.render(scene, camera);
-        });
-
-        var lastTimeMsec = null;
-        requestAnimationFrame(function animate(nowMsec) {
+        // 7. Animation Loop
+        function animate() {
             requestAnimationFrame(animate);
-            lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60;
-            var deltaMsec = Math.min(200, nowMsec - lastTimeMsec);
-            lastTimeMsec = nowMsec;
-            onRenderFcts.forEach(function (onRenderFct) {
-                onRenderFct(deltaMsec / 1000, nowMsec / 1000);
-            });
-        });
+            if (arToolkitSource.ready) {
+                arToolkitContext.update(arToolkitSource.domElement);
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
     </script>
 </body>
 </html>
