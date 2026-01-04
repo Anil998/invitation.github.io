@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>AR Visiting Card</title>
+<meta charset="UTF-8" />
+<title>AR Invitation Card</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
 <!-- A-Frame -->
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -18,22 +18,23 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #000;
 }
 
-/* HIDE MINDAR LOADING SPINNER */
+/* Hide MindAR spinner */
 .mindar-ui-overlay {
   display: none !important;
 }
 
 /* Instruction text */
-#hint {
+#status {
   position: fixed;
-  bottom: 20px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.7);
   color: #fff;
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: 8px;
   font-size: 16px;
   z-index: 10;
@@ -43,47 +44,41 @@ html, body {
 
 <body>
 
-<div id="hint">Scan your visiting card</div>
+<div id="status">Scan your card</div>
 
 <a-scene
   mindar-image="imageTargetSrc: target.mind;"
   embedded
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false">
+  vr-mode-ui="enabled:false"
+  device-orientation-permission-ui="enabled:false">
 
   <a-assets>
-    <a-asset-item id="dogModel" src="dog.glb"></a-asset-item>
+    <a-asset-item id="dog" src="dog.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Image target -->
-  <a-entity mindar-image-target="targetIndex: 0" id="target">
-
-    <!-- 3D Model -->
+  <a-entity id="target" mindar-image-target="targetIndex: 0">
     <a-gltf-model
-      src="#dogModel"
+      src="#dog"
       position="0 0 0"
       rotation="0 0 0"
       scale="0.35 0.35 0.35"
       animation-mixer>
     </a-gltf-model>
-
   </a-entity>
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 </a-scene>
 
 <script>
-const hint = document.getElementById("hint");
+const status = document.getElementById("status");
 const target = document.getElementById("target");
 
 target.addEventListener("targetFound", () => {
-  hint.innerText = "Card detected!";
-  hint.style.background = "rgba(0,128,0,0.7)";
+  status.innerText = "Card detected!";
 });
 
 target.addEventListener("targetLost", () => {
-  hint.innerText = "Scan your visiting card";
-  hint.style.background = "rgba(0,0,0,0.7)";
+  status.innerText = "Scan your card";
 });
 </script>
 
