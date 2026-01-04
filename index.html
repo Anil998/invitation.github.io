@@ -1,74 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>AR Dog Invitation</title>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs>
+      <a-assets>
+        <a-asset-item id="invitationModel" src="dog.glb"></a-asset-item>
+      </a-assets>
 
-  <!-- A-Frame + MindAR -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+      <a-marker type="pattern" url="pattern-marker.patt">
+        <a-entity 
+          gltf-model="#invitationModel" 
+          scale="0.5 0.5 0.5" 
+          rotation="-90 0 0"
+          animation="property: rotation; to: -90 360 0; loop: true; dur: 10000">
+        </a-entity>
+      </a-marker>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    a-scene {
-      width: 100vw !important;
-      height: 100vh !important;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-  </style>
-</head>
-<body>
-
-<a-scene
-  mindar-image="imageTargetSrc: targets.mind;"
-  embedded
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: true"
-  renderer="colorManagement: true, physicallyCorrectLights: true"
->
-
-  <!-- Fullscreen Camera -->
-  <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
-
-  <!-- 3D Dog Model on Marker -->
-  <a-entity mindar-image-target="targetIndex: 0">
-
-    <!-- Replace "dog.glb" with exact filename / HTTPS link -->
-    <a-gltf-model 
-      src="dog.glb" 
-      scale="0.5 0.5 0.5" 
-      position="0 0 0" 
-      rotation="0 0 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
-    </a-gltf-model>
-
-  </a-entity>
-
-  <!-- Lighting for better 3D visibility -->
-  <a-entity light="type: directional; intensity: 1" position="0 2 2"></a-entity>
-  <a-entity light="type: ambient; intensity: 0.5"></a-entity>
-
-</a-scene>
-
-<!-- Handle resizing for portrait/landscape -->
-<script>
-  const scene = document.querySelector('a-scene');
-  function resizeScene() {
-    scene.style.width = window.innerWidth + 'px';
-    scene.style.height = window.innerHeight + 'px';
-  }
-  window.addEventListener('resize', resizeScene);
-  window.addEventListener('orientationchange', resizeScene);
-  resizeScene();
-</script>
-
-</body>
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
 </html>
